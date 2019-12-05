@@ -145,4 +145,22 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findAll(specification);
     }
+
+    @Override
+    public List<User> findByPhone(String phone) {
+        List<Predicate> predicates = new ArrayList<>();
+        Specification<User> specification = (root, query, criteriaBuilder) -> {
+            if (!StringUtils.isEmpty(phone)){
+                predicates.add(criteriaBuilder.equal(root.get("uPhone"),phone));
+            }
+            return  criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return userRepository.findAll(specification);
+    }
+
+    @Override
+    public void add(User user) {
+        userRepository.save(user);
+    }
 }

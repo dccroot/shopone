@@ -14,13 +14,16 @@ import org.jeecgframework.poi.excel.entity.ExportParams;
 import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.List;
 
-
+@CrossOrigin
 @Api(description = "用户")
 @RequestMapping(value = "user")
 @RestController
@@ -79,6 +82,33 @@ public class UserController {
         return addressList;
     }
 
+    @ApiOperation(value = "Specification通过手机号（账号） 查询用户基本信息")
+    @PostMapping("/findByPhone")
+    public Boolean findByPhone(@RequestBody User user)throws Exception {
+        List<User> userList = importUserServiceImpl.findByPhone(user.getUPhone());
+
+
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        md5.update(user.getUPwd().getBytes());
+        String msg =  new BigInteger(1, md5.digest()).toString(16);
+        for (User u : userList
+                ) {
+            if (msg.equals(u.getUPwd())) {
+                return true;
+            }
+            return false;
+
+        }
+        return false;
+    }
+
+    @ApiOperation(value = "Specification通过手机号（账号） 查询用户基本信息")
+    @PostMapping("/findByPhoneX")
+    public List<User> findByPhoneX(@RequestBody User user) {
+        List<User> userList = importUserServiceImpl.findByPhone(user.getUPhone());
+        return userList;
+    }
+
 
     @ApiOperation(value = "Specification查询结果进行分页")
     @PostMapping("/findAllAndPage")
@@ -119,4 +149,21 @@ public class UserController {
         workbook.write(response.getOutputStream());
 
     }
+
+    @ApiOperation(value = "利用MD5对密码进行加密")
+    @PostMapping("/mdAdd")
+    public void mdAdd(@RequestBody User user)throws Exception {
+        // 生成一个MD5加密计算摘要
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        // 计算md5函数
+        md5.update(user.getUPwd().getBytes());
+        // digest()最后确定返回md5 hash值，返回值为8位字符串。因为md5 hash值是16位的hex值，
+        // 实际上就是8位的字符BigInteger函数则将8位的字符串转换成16位hex值，用字符串来表示；
+        // 得到字符串形式的hash值一个byte是八位二进制，也就是2位十六进制字符
+        // （2的8次方等于16的2次方）
+        String msg =  new BigInteger(1, md5.digest()).toString(16);
+        user.setUPwd(msg);
+        importUserServiceImpl.add(user);
+    }
+
 }

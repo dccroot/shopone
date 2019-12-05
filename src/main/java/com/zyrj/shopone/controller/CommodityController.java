@@ -1,9 +1,8 @@
 package com.zyrj.shopone.controller;
 
 
-import com.zyrj.shopone.config.MyTimerTask;
-import com.zyrj.shopone.config.ScheduleExecutorTest;
 import com.zyrj.shopone.entity.Commodity;
+import com.zyrj.shopone.entity.SelectCommodity;
 import com.zyrj.shopone.service.impl.CommodityServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,16 +19,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Timer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 
 @Api(description = "商品")
 @RequestMapping(value = "commodity")
 @RestController
+@CrossOrigin
 public class CommodityController {
 
     @Autowired
@@ -39,29 +34,18 @@ public class CommodityController {
     @PostMapping("/add")
     public void add(@RequestBody Commodity commodity) {
         commodity = commodityService.save(commodity);
-        Scanner sc = new Scanner(System.in);
-        System.out.println("是否将商品进行保存，输入：y/n ");
-        String judge = sc.next();
-
-        if ("n".equals(judge.toLowerCase())){
-            Timer timer=new Timer();
-            MyTimerTask myTimerTask=new MyTimerTask();
-            myTimerTask.setcId(commodity.getCId());
-            timer.schedule(myTimerTask,1000*3);
-            System.err.println("10秒钟后自动删除未保存商品");
-        }
     }
 
     @ApiOperation(value = "商品列表")
     @GetMapping("/findCommodityList")
     public List<Commodity> findCommodityList() {
 
-        ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
-        ScheduleExecutorTest job1 = new ScheduleExecutorTest("job1");
-        ScheduleExecutorTest job2 = new ScheduleExecutorTest("job2");
-        //从现在开始delay毫秒之后，每隔period执行一次job1
-        service.scheduleAtFixedRate(job1,1,1,TimeUnit.SECONDS);
-        service.scheduleAtFixedRate(job2,2,1,TimeUnit.SECONDS);
+//        ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
+//        ScheduleExecutorTest job1 = new ScheduleExecutorTest("job1");
+//        ScheduleExecutorTest job2 = new ScheduleExecutorTest("job2");
+//        //从现在开始delay毫秒之后，每隔period执行一次job1
+//        service.scheduleAtFixedRate(job1,1,1,TimeUnit.SECONDS);
+//        service.scheduleAtFixedRate(job2,2,1,TimeUnit.SECONDS);
 
 
         List<Commodity> commodities = commodityService.findAll();
@@ -86,9 +70,9 @@ public class CommodityController {
     }
 
     @ApiOperation(value = "删除指定商品")
-    @DeleteMapping("/deleteCommodity/{id}")
-    public void deleteCommodity(@PathVariable("id") Integer id) {
-        commodityService.deleteById(id);
+    @DeleteMapping("/deleteCommodity/{cId}")
+    public void deleteCommodity(@PathVariable Integer cId) {
+        commodityService.deleteById(cId);
     }
 
 
@@ -118,5 +102,11 @@ public class CommodityController {
                 Commodity.class, params);
 
         commodityService.saveAll(list);
+    }
+
+    @ApiOperation(value = "根据搜索框信息进行复杂查询")
+    @PostMapping("/findByNameAndPraiseAndCost")
+    public List<Commodity> findByNameAndPraiseAndCost(@RequestBody SelectCommodity selectCommodity) {
+            return commodityService.findByNameAndPraiseAndCost(selectCommodity);
     }
 }

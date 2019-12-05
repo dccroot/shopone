@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 @RequestMapping(value = "commodity")
@@ -29,4 +30,12 @@ public class MyTimerTask extends TimerTask{
         System.out.println(cId);
         commodityService.deleteById(cId);
    }
+
+//    if ("n".equals(judge.toLowerCase())){
+//        Timer timer=new Timer();
+//        MyTimerTask myTimerTask=new MyTimerTask();
+//        myTimerTask.setcId(commodity.getCId());
+//        timer.schedule(myTimerTask,1000*3);
+//        System.err.println("10秒钟后自动删除未保存商品");
+//    }
 }

@@ -26,4 +26,8 @@ public interface UserService {
 
    List<User> findAddressByPhone(String phone);
 
+   List<User>  findByPhone(String phone);
+
+   void add(User user);
+
 }
